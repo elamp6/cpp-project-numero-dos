@@ -1,0 +1,279 @@
+#include <iostream>
+#include <conio.h>
+#include <Windows.h>
+#include <iomanip>
+#include <string>
+#include <fstream>
+
+using namespace std;
+
+struct Student
+{
+	string id;
+	string fname;
+	string lname;
+	string gpa;
+	string major;
+	string year;
+};
+
+void grid(int x, int y, int ch);
+void grid(int x, int y, string str);
+void setCursor(int x, int y);
+void display_frame();
+void display_menu();
+void clf();
+Student add();
+void print(Student stud[], int count);
+void save(Student stud[], int count);
+void load(Student stud[], int &count);
+
+int main()
+{
+	const int size = 1000;
+	int count = 0;
+	Student stud[size];
+	display_frame();
+	display_menu();
+	int x = 25, y = 15;
+	grid(x, y, '#');
+	do
+	{
+		char in = _getch();
+		if (in == 80 && y < 55)
+		{
+			grid(x, y, ' ');
+			y += 5;
+			grid(x, y, '#');
+		}
+		else if (in == 72 && y > 15)
+		{
+			grid(x, y, ' ');
+			y -= 5;
+			grid(x, y, '#');
+		}
+		// add a student
+		if (y == 15 && in == 13)
+		{
+			stud[count++] = add();
+			clf();
+			display_menu();
+			grid(x, y, '#');
+		}
+		// print all info
+		else if (y == 20 && in == 13)
+		{
+			print(stud, count);
+			clf();
+			display_menu();
+			grid(x, y, '#');
+		}
+		// save info
+		else if (y == 45 && in == 13)
+		{
+			save(stud, count);
+			clf();
+			display_menu();
+			grid(x, y, '#');
+		}
+		// load info
+		else if(y == 50 && in == 13)
+		{
+			load(stud, count);
+			clf();
+			display_menu();
+			grid(x, y, '#');
+		}
+		else if(y == 55 && in ==13)
+		{
+			setCursor(100,100);
+			break;
+		}
+	} while (true);
+}
+
+void load(Student stud[], int &count)
+{
+	clf();
+	count = 0;
+	ifstream fin;
+	fin.open("data.txt");
+	if(fin.good())
+	{
+		while(!fin.eof())
+		{
+			fin >> stud[count].id;
+			fin >> stud[count].fname;
+			fin >> stud[count].lname;
+			fin >> stud[count].major;
+			fin >> stud[count].year;
+			if(fin >> stud[count].gpa)
+				count++;
+		}
+		grid(25,25,"Finished");
+	}
+	else
+	{
+		grid(25,25,"Failed");
+	}
+	fin.close();
+	cin.get();
+	cin.get();
+}
+
+void save(Student stud[], int count) 
+{
+	clf();
+	ofstream fout;
+	fout.open("data.txt");
+	if(fout.good())
+	{
+		for(int ind = 0; ind<count; ind++)
+		{
+			fout << stud[ind].id << endl;
+			fout << stud[ind].fname << endl;
+			fout << stud[ind].lname << endl;
+			fout << stud[ind].major << endl;
+			fout << stud[ind].year << endl;
+			fout << stud[ind].gpa << endl;
+		}
+		grid(25,25,"Finished");
+	}
+	else
+	{
+		grid(25,25,"Failed");
+	}
+	fout.close();
+	cin.get();
+	cin.get();
+}
+
+void print(Student stud[], int count)
+{
+	//head
+	clf();
+	int x = 23, y = 15;
+	grid(x, y, "ID");
+	x += 10;
+	grid(x, y, "FirstName");
+	x += 10;
+	grid(x, y, "LastName");
+	x += 10;
+	grid(x, y, "Major");
+	x += 10;
+	grid(x, y, "Year");
+	x += 10;
+	grid(x, y, "GPA");
+
+	//body
+	y = 18;
+	for (int ind=0 ; ind < count; ind++)
+	{
+		x = 23;
+		grid(x, y, stud[ind].id);
+		x += 10;
+		grid(x, y, stud[ind].fname);
+		x += 10;
+		grid(x, y, stud[ind].lname);
+		x += 10;
+		grid(x, y, stud[ind].major);
+		x += 10;
+		grid(x, y, stud[ind].year);
+		x += 10;
+		grid(x, y, stud[ind].gpa);
+		x += 10;
+		y++;
+	}
+	cin.get();
+	cin.get();
+}
+
+Student add()
+{
+	Student stud;
+	clf();
+	grid(25, 25, "Enter the id: ");
+	setCursor(25, 30);
+	cin >> stud.id;
+
+	clf();
+	grid(25, 25, "Enter the last name: ");
+	setCursor(25, 30);
+	cin >> stud.lname;
+
+	clf();
+	grid(25, 25, "Enter the first name: ");
+	setCursor(25, 30);
+	cin >> stud.fname;
+
+	clf();
+	grid(25, 25, "Enter the GPA: ");
+	setCursor(25, 30);
+	cin >> stud.gpa;
+
+	clf();
+	grid(25, 25, "Enter the major: ");
+	setCursor(25, 30);
+	cin >> stud.major;
+
+	clf();
+	grid(25, 25, "Enter the year: ");
+	setCursor(25, 30);
+	cin >> stud.year;
+
+	return stud;
+}
+
+void setCursor(int x, int y)
+{
+	COORD pos = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+}
+
+void grid(int x, int y, int ch)
+{
+	COORD pos = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+	cout << char(ch) << endl;
+}
+
+void grid(int x, int y, string str)
+{
+	COORD pos = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+	cout << str << endl;
+}
+
+void display_frame()
+{
+	int x, y;
+	for (x = 20, y = 10; x <= 80; x++)
+		grid(x, y, 220);
+	for (x = 20, y = 60; x <= 80; x++)
+		grid(x, y, 223);
+	for (x = 20, y = 11; y < 60; y++)
+		grid(x, y, 221);
+	for (x = 80, y = 11; y < 60; y++)
+		grid(x, y, 222);
+}
+
+void display_menu()
+{
+	int x = 30, y = 10;
+	grid(x, y += 5, "Adding a new student"); // y = 15
+	grid(x, y += 5, "Browsing all the students"); // y = 20 
+	grid(x, y += 5, "Browsing one student");
+	grid(x, y += 5, "Modifying the information of one student");
+	grid(x, y += 5, "Browsing all the students for a major");
+	grid(x, y += 5, "Deleting a student");
+	grid(x, y += 5, "Saving all the information"); // y = 45
+	grid(x, y += 5, "Loading all the information"); // y = 50
+	grid(x, y += 5, "Exiting the system"); // y = 55
+}
+
+void clf()
+{
+	for (int i = 21; i< 80; i++)
+		for (int j = 11; j<60; j++)
+			grid(i, j, ' ');
+}
